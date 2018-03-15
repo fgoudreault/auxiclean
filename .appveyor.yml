@@ -21,7 +21,7 @@ build_script:
   # build exe file using pyinstaller from main run script
   - IF "%PYTHON_VERSION%"=="3.6.2" (
       pip install pyinstaller==3.3 &&
-      pyton bundle.py
+      python bundle.py
     )       
 artifacts:
   - path: dist/auxiclean_windows.exe
