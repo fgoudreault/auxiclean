@@ -6,13 +6,22 @@ matrix:
   include:
     - os: osx
       language: generic
+      python: 3.5
+      env: 
+        - TRAVIS_PYTHON_VERSION=3.5
+        - DEPLOY_FILE="dist/auxiclean_osx.zip"
+    - os: osx
+      language: generic
       python: 3.6
       env: 
-        - TRAVIS_PYTHON_VERSION=3.6
+        - TRAVIS_PYTHON_VERSION=3.6.2
         - DEPLOY_FILE="dist/auxiclean_osx.zip"
-    
     - os: linux
-      python: 3.6
+      python: 3.5
+      env: 
+        - DEPLOY_FILE="dist/auxiclean_linux"
+    - os: linux
+      python: 3.6.2
       env: 
         - DEPLOY_FILE="dist/auxiclean_linux"
 
@@ -29,7 +38,7 @@ before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - source $HOME/miniconda/bin/activate
   # update conda for osx
-  - conda update --yes --all
+  - conda install --yes conda==4.3.27
   - conda create -q --yes -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
 # install auxiclean package
@@ -40,18 +49,20 @@ script:
   - pytest
 after_success:
   # report coverage in coveralls only for linux build with python 3.6
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if ([[ "$TRAVIS_PYTHON_VERSION" == "3.6.2" ]] && 
+        [[ "$TRAVIS_OS_NAME" == "linux" ]]); then
       pip install coveralls;
     fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  - if ([[ "$TRAVIS_PYTHON_VERSION" == "3.6.2" ]] && 
+        [[ "$TRAVIS_OS_NAME" == "linux" ]]); then
       coveralls;
     fi
 
 before_deploy:
-  - pip install pyinstaller
-  # there is a bug with pyinstaller and anaconda. Reverting to python 3.6.0 when bundling seems to fix this.
-  - conda install --yes python==3.6.0
-  - python bundle.py
+  # build with python 3.6 only
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6.2" ]]; then pip install pyinstaller==3.3; fi
+  # for macos we compress the .app bundle to be able to upload it on github
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6.2" ]]; then python bundle.py fi
 deploy:
   - provider: releases
     api_key:
@@ -60,4 +71,4 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      python: 3.6
+      python: 3.6.2

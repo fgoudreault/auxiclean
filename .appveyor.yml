@@ -1,13 +1,15 @@
 environment:
   matrix:
-    - PYTHON_VERSION: 3.6
+    - PYTHON_VERSION: 3.6.2
       MINICONDA: C:\Miniconda36
+    - PYTHON_VERSION: 3.5
+      MINICONDA: C:\Miniconda35
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
   - "ECHO %APPVEYOR_REPO_TAG_NAME%"
 install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"   
-  - conda update --yes conda
+  - conda install --yes conda==4.3.27
   - conda create -y -q -n test-environment python=%PYTHON_VERSION%
   - activate test-environment
   - python setup.py develop
@@ -17,8 +19,10 @@ test_script:
 build: off
 build_script:
   # build exe file using pyinstaller from main run script
-  - pip install pyinstaller
-  - python bundle.py
+  - IF "%PYTHON_VERSION%"=="3.6.2" (
+      pip install pyinstaller==3.3 &&
+      pyton bundle.py
+    )       
 artifacts:
   - path: dist/auxiclean_windows.exe
     name: auxiclean_windows
@@ -40,4 +44,4 @@ deploy:
       - master
       - test_deploy
     appveyor_repo_tag: true
-    PYTHON_VERSION: 3.6
+    PYTHON_VERSION: 3.6.2
