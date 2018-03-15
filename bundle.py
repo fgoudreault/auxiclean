@@ -7,7 +7,7 @@ to_remove = ("build", "dist")
 
 for remove in to_remove:
     if os.path.exists(remove):
-        print(f"Deleting existing '{remove}' directory for clean bundling.")
+        print("Deleting existing '%s' directory for clean bundling." % remove)
         shutil.rmtree(remove)
 
 
@@ -33,4 +33,4 @@ elif platform == "win32":
     print("Bundling for Windows.")
     os.system(windows_command)
 else:
-    raise OSError(f"OS '{platform}' not recognized... cannot bundle app.")
+    raise OSError("OS '%s' not recognized... cannot bundle app." % platform)
